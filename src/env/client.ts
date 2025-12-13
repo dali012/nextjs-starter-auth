@@ -1,6 +1,14 @@
+/* eslint-disable n/no-process-env */
 import { createEnv } from '@t3-oss/env-nextjs';
+import z from 'zod';
 
 export const env = createEnv({
-  client: {},
-  runtimeEnv: {},
+  client: {
+    NEXT_PUBLIC_BETTER_AUTH_URL: z.url(
+      'NEXT_PUBLIC_BETTER_AUTH_URL must be a valid URL',
+    ),
+  },
+  runtimeEnv: {
+    NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
+  },
 });
