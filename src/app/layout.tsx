@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Figtree } from 'next/font/google';
 
-import Navbar from '@/components/navbar';
 import AuthUiProvider from '@/components/providers/better-auth-ui-provider';
 import ThemeProvider from '@/components/providers/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
@@ -57,7 +56,6 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthUiProvider>
-            <Navbar />
             {children}
             <Toaster richColors />
           </AuthUiProvider>
