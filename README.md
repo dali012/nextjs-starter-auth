@@ -1,98 +1,86 @@
-# Next.js Starter
+# Next.js Auth Starter
 
-A modern, opinionated Next.js starter template packed with the latest
-technologies and best practices to kickstart your web development journey.
+A production-ready starter for shipping auth-first SaaS with Next.js App Router,
+Better Auth, Drizzle, and shadcn/ui. Opinionated defaults, easy theming, and
+typed helpers so you can focus on product.
 
-## 🚀 Tech Stack
+## Stack
 
-- **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
-- **Language:** [TypeScript](https://www.typescriptlang.org/)
-- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
-- **UI Library:** [React 19](https://react.dev/)
-- **Validation:** [Zod](https://zod.dev/)
-- **Environment:** [@t3-oss/env-nextjs](https://env.t3.gg/)
-- **Linting & Formatting:** ESLint, Prettier
-- **Git Hooks:** Husky, Lint-staged, Commitlint
+- Next.js App Router (TypeScript)
+- Better Auth (email, magic links, OAuth-ready)
+- Drizzle ORM + PostgreSQL
+- shadcn/ui on Tailwind CSS v4
+- Radix primitives, class-variance-authority utilities
 
-## 🛠️ Getting Started
+## Features
 
-### Prerequisites
+- Drop-in auth routes: sign-in, sign-up, magic link, OAuth, account
+- Session-aware layouts and guarded routes
+- Themed auth UI via CSS tokens; light/dark ready
+- Drizzle migrations and typed database access
+- Client + server helpers for redirects and session handling
 
-Ensure you have the following installed:
+## Quickstart
 
-- [Bun](https://bun.sh/) (v1.0 or later)
-
-### Installation
-
-1. Clone the repository:
-
-   ```bash
-   git clone <repository-url>
-   cd nextjs-starter
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   bun install
-   ```
-
-3. Start the development server:
-
-   ```bash
-   bun dev
-   ```
-
-   Open [http://localhost:3000](http://localhost:3000) with your browser to see
-   the result.
-
-## 📂 Project Structure
-
-```text
-.
-├── src/
-│   ├── app/          # Next.js App Router pages and layouts
-│   ├── components/   # Reusable UI components
-│   ├── env/          # Environment variable validation
-│   └── ...
-├── public/           # Static assets
-├── .husky/           # Git hooks
-├── ...
+```bash
+bun install        # or pnpm install
+docker compose up  # or point DATABASE_URL to Postgres
+bun dev            # start the app
 ```
 
-## 📜 Scripts
+Then open <http://localhost:3000> and try `/auth/sign-in`.
 
-- `bun dev`: Runs the development server.
-- `bun run build`: Builds the application for production.
-- `bun start`: Starts the production server.
-- `bun run lint`: Runs ESLint to check for code quality issues.
-- `bun run format`: Formats the code using Prettier.
-- `bun run prepare`: Sets up Husky git hooks.
+## Environment
 
-## 🤝 Commit Convention
+Copy `.env.example` to `.env.local` and set:
 
-This project follows the
-[Conventional Commits](https://www.conventionalcommits.org/) specification.
+- `DATABASE_URL` — Postgres connection string
+- `NEXT_PUBLIC_APP_URL` — e.g. <http://localhost:3000>
+- `BETTER_AUTH_SECRET` — strong random string
+- `OAUTH_*` — per provider (id/secret)
 
-Format: `<type>(<scope>): <subject>`
+## Routes
 
-**Types:**
+- `/` landing
+- `/docs` documentation
+- `/auth/sign-in`, `/auth/sign-up` auth flows
+- `/account` session-protected area
 
-- `feat`: A new feature
-- `fix`: A bug fix
-- `docs`: Documentation only changes
-- `style`: Changes that do not affect the meaning of the code (white-space,
-  formatting, etc)
-- `refactor`: A code change that neither fixes a bug nor adds a feature
-- `perf`: A code change that improves performance
-- `test`: Adding missing tests or correcting existing tests
-- `chore`: Changes to the build process or auxiliary tools and libraries such as
-  documentation generation
+## Provider wiring
 
-Example: `feat(auth): add login page`
+Auth UI is provided via `AuthUIProvider` with custom navigate/replace and Link
+wrappers. See
+[src/components/providers/better-auth-ui.tsx](src/components/providers/better-auth-ui.tsx).
 
-## ⚙️ Environment Variables
+## Theming
 
-This project uses `@t3-oss/env-nextjs` for type-safe environment variables.
-Define your environment variables in `.env` (or `.env.local`) and validate them
-in `src/env/client.ts` and `src/env/server.ts`.
+Edit CSS tokens in [src/app/globals.css](src/app/globals.css) to change colors,
+radius, and typography. shadcn/ui components inherit these values.
+
+## Scripts
+
+- `bun dev` — run locally
+- `bun lint` — lint
+- `bun typecheck` — types
+- `bun db:push` — run Drizzle migrations (adjust to your script name)
+
+## Project structure
+
+- `src/app` — routes (landing, docs, auth, account)
+- `src/components` — UI primitives, providers
+- `src/lib` — auth client/server helpers
+- `drizzle/` — migrations
+
+## Docs
+
+A styled docs page lives at [src/app/docs/page.tsx](src/app/docs/page.tsx).
+Start there for setup steps, routing, customization, and FAQs.
+
+## Deploying
+
+1. Set env vars on your host (Vercel, Fly, Render). 2) Run migrations
+   (`drizzle kit push` or your script). 3) Deploy as a standard Next.js app.
+
+## License
+
+MIT.
