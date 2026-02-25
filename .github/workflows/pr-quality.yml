@@ -1,0 +1,247 @@
+name: PR Quality Automation
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+      - ready_for_review
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: pr-quality-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: PR Metadata and Label Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR title
+        id: title_check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const title = (pr.title || "").trim();
+            const pattern = /^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9._/-]+\))?!?:\s.+$/;
+
+            let valid = true;
+            let message = "Title follows Conventional Commits format.";
+
+            if (pr.draft) {
+              message = "Draft PR: title check deferred until ready for review.";
+            } else if (!pattern.test(title)) {
+              valid = false;
+              message = "PR title must follow Conventional Commits, e.g. `feat(auth): add passkey flow`.";
+            }
+
+            core.setOutput("valid", String(valid));
+            core.setOutput("message", message);
+
+            if (!valid) {
+              core.warning(message);
+            }
+
+      - name: Validate PR description
+        id: body_check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const body = (pr.body || "").trim();
+
+            const hasSummary = /^#{1,6}\s*Summary\b/im.test(body);
+            const hasTesting = /^#{1,6}\s*Testing\b/im.test(body);
+
+            let valid = true;
+            let message = "Description has required quality sections.";
+
+            if (pr.draft) {
+              message = "Draft PR: description check deferred until ready for review.";
+            } else if (body.length < 20) {
+              valid = false;
+              message = "PR description is too short. Add context and testing notes.";
+            } else if (!hasSummary || !hasTesting) {
+              valid = false;
+              message = "PR description must include `## Summary` and `## Testing` sections.";
+            }
+
+            core.setOutput("valid", String(valid));
+            core.setOutput("message", message);
+
+            if (!valid) {
+              core.warning(message);
+            }
+
+      - name: Ensure size labels exist
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = [
+              { name: "size/XS", color: "0e8a16", description: "0-49 lines changed" },
+              { name: "size/S", color: "1d76db", description: "50-149 lines changed" },
+              { name: "size/M", color: "fbca04", description: "150-499 lines changed" },
+              { name: "size/L", color: "d93f0b", description: "500-999 lines changed" },
+              { name: "size/XL", color: "b60205", description: "1000+ lines changed" }
+            ];
+
+            for (const label of labels) {
+              try {
+                await github.rest.issues.getLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name
+                });
+              } catch (error) {
+                if (error.status === 404) {
+                  await github.rest.issues.createLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    name: label.name,
+                    color: label.color,
+                    description: label.description
+                  });
+                } else {
+                  throw error;
+                }
+              }
+            }
+
+      - name: Apply PR size label
+        id: size_label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const changed = pr.additions + pr.deletions;
+
+            let selected = "size/XS";
+            if (changed >= 1000) selected = "size/XL";
+            else if (changed >= 500) selected = "size/L";
+            else if (changed >= 150) selected = "size/M";
+            else if (changed >= 50) selected = "size/S";
+
+            const allSizeLabels = ["size/XS", "size/S", "size/M", "size/L", "size/XL"];
+            const existing = (pr.labels || [])
+              .map(label => label.name)
+              .filter(Boolean);
+
+            for (const label of existing) {
+              if (allSizeLabels.includes(label) && label !== selected) {
+                try {
+                  await github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: pr.number,
+                    name: label
+                  });
+                } catch (error) {
+                  if (error.status !== 404) {
+                    throw error;
+                  }
+                }
+              }
+            }
+
+            if (!existing.includes(selected)) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: [selected]
+              });
+            }
+
+            core.setOutput("label", selected);
+            core.setOutput("changed", String(changed));
+
+      - name: Post PR quality report comment
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          TITLE_VALID: ${{ steps.title_check.outputs.valid }}
+          TITLE_MESSAGE: ${{ steps.title_check.outputs.message }}
+          BODY_VALID: ${{ steps.body_check.outputs.valid }}
+          BODY_MESSAGE: ${{ steps.body_check.outputs.message }}
+          SIZE_LABEL: ${{ steps.size_label.outputs.label }}
+          CHANGED_LINES: ${{ steps.size_label.outputs.changed }}
+        with:
+          script: |
+            const marker = "<!-- pr-quality-check -->";
+            const issue_number = context.payload.pull_request.number;
+
+            const titlePassed = process.env.TITLE_VALID === "true";
+            const bodyPassed = process.env.BODY_VALID === "true";
+            const titleIcon = titlePassed ? "✅" : "❌";
+            const bodyIcon = bodyPassed ? "✅" : "❌";
+            const size = process.env.SIZE_LABEL || "size/XS";
+            const changed = process.env.CHANGED_LINES || "0";
+
+            const commentBody = [
+              marker,
+              "## PR Quality Report",
+              "",
+              `- ${titleIcon} **Title check**: ${process.env.TITLE_MESSAGE}`,
+              `- ${bodyIcon} **Description check**: ${process.env.BODY_MESSAGE}`,
+              `- 📏 **Size label**: \`${size}\` (${changed} total lines changed)`,
+              "",
+              "_This comment updates automatically on every PR update._"
+            ].join("\n");
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number,
+              per_page: 100
+            });
+
+            const existing = comments.find(
+              comment => comment.user?.type === "Bot" && comment.body?.includes(marker)
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: commentBody
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number,
+                body: commentBody
+              });
+            }
+
+      - name: Fail if PR quality checks did not pass
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          TITLE_VALID: ${{ steps.title_check.outputs.valid }}
+          TITLE_MESSAGE: ${{ steps.title_check.outputs.message }}
+          BODY_VALID: ${{ steps.body_check.outputs.valid }}
+          BODY_MESSAGE: ${{ steps.body_check.outputs.message }}
+        with:
+          script: |
+            const errors = [];
+
+            if (process.env.TITLE_VALID !== "true") {
+              errors.push(`Title check failed: ${process.env.TITLE_MESSAGE}`);
+            }
+
+            if (process.env.BODY_VALID !== "true") {
+              errors.push(`Description check failed: ${process.env.BODY_MESSAGE}`);
+            }
+
+            if (errors.length > 0) {
+              core.setFailed(errors.join("\n"));
+            }

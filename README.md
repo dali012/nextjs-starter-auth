@@ -64,6 +64,29 @@ radius, and typography. shadcn/ui components inherit these values.
 - `bun typecheck` — types
 - `bun db:push` — run Drizzle migrations (adjust to your script name)
 
+## CI/CD (GitHub Actions)
+
+This starter includes two workflows:
+
+- `.github/workflows/ci.yml`
+  - Runs on pull requests and pushes to `main`
+  - Executes lint, typecheck, and production build checks
+- `.github/workflows/pr-quality.yml`
+  - Enforces PR title format (Conventional Commits)
+  - Enforces PR description sections (`## Summary` and `## Testing`)
+  - Applies automatic PR size labels (`size/XS` -> `size/XL`)
+  - Posts an up-to-date PR quality report comment
+- `.github/workflows/cd-vercel.yml`
+  - Deploys Vercel preview builds for pull requests
+  - Deploys production on pushes to `main`
+  - Skips deployment automatically when required secrets are missing
+
+To enable Vercel deployment, set these repository secrets:
+
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
+
 ## Project structure
 
 - `src/app` — routes (landing, docs, auth, account)
