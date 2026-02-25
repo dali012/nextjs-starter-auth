@@ -20,10 +20,13 @@ Thanks for your interest in contributing to this Next.js starter.
 3. Create your local env file:
 
    ```bash
-   provider keys if needed).
+   cp .env.example .env
    ```
 
-4. Start development server:
+4. Set required env vars in `.env` (`DATABASE_URL`, `BETTER_AUTH_SECRET`, auth
+   provider keys if needed).
+
+5. Start development server:
 
    ```bash
    bun run dev
@@ -71,6 +74,23 @@ Examples:
 - Include screenshots/GIFs for UI changes.
 - Mention any breaking changes clearly.
 - Ensure no secrets are committed.
+
+## PR Automation Checks
+
+Pull requests are automatically validated by `.github/workflows/pr-quality.yml`.
+
+Required:
+
+- PR title must follow Conventional Commits (for example:
+  `feat(auth): add passkey UI`).
+- PR description must include `## Summary` and `## Testing` sections.
+
+Automation also:
+
+- Applies a PR size label (`size/XS`, `size/S`, `size/M`, `size/L`, `size/XL`).
+- Posts an updated quality report comment on the PR.
+
+Use `.github/pull_request_template.md` to satisfy these checks quickly.
 
 ## Hooks
 
