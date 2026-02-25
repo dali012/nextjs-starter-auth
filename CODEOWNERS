@@ -1,0 +1,24 @@
+# Default code owners
+
+* @dali012
+
+# App routes and core runtime
+
+/src/app/ @dali012
+/src/lib/ @dali012
+/src/db/ @dali012
+/src/components/ @dali012
+
+# Tooling and repository policies
+
+/package.json @dali012
+/bun.lock @dali012
+/eslint.config.mjs @dali012
+/prettier.config.mjs @dali012
+/drizzle.config.ts @dali012
+/tsconfig.json @dali012
+/next.config.ts @dali012
+/README.md @dali012
+/CONTRIBUTING.md @dali012
+/LICENSE @dali012
+/CODEOWNERS @dali012
