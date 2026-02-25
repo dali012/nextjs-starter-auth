@@ -87,6 +87,10 @@ To enable Vercel deployment, set these repository secrets:
 - `VERCEL_ORG_ID`
 - `VERCEL_PROJECT_ID`
 
+Branch protection setup guide:
+
+- `.github/BRANCH_PROTECTION.md`
+
 ## Project structure
 
 - `src/app` — routes (landing, docs, auth, account)

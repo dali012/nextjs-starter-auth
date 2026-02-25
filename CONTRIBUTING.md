@@ -92,6 +92,8 @@ Automation also:
 
 Use `.github/pull_request_template.md` to satisfy these checks quickly.
 
+Branch protection baseline is documented in `.github/BRANCH_PROTECTION.md`.
+
 ## Hooks
 
 - `pre-commit` runs `lint-staged`
