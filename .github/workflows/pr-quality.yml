@@ -25,7 +25,7 @@ jobs:
     steps:
       - name: Validate PR title
         id: title_check
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const pr = context.payload.pull_request;
@@ -51,7 +51,7 @@ jobs:
 
       - name: Validate PR description
         id: body_check
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const pr = context.payload.pull_request;
@@ -81,7 +81,7 @@ jobs:
             }
 
       - name: Ensure size labels exist
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const labels = [
@@ -116,7 +116,7 @@ jobs:
 
       - name: Apply PR size label
         id: size_label
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const pr = context.payload.pull_request;
@@ -164,7 +164,7 @@ jobs:
 
       - name: Post PR quality report comment
         if: always()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           TITLE_VALID: ${{ steps.title_check.outputs.valid }}
           TITLE_MESSAGE: ${{ steps.title_check.outputs.message }}
@@ -224,7 +224,7 @@ jobs:
 
       - name: Fail if PR quality checks did not pass
         if: always()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           TITLE_VALID: ${{ steps.title_check.outputs.valid }}
           TITLE_MESSAGE: ${{ steps.title_check.outputs.message }}
