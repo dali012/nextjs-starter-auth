@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
 
@@ -14,16 +14,26 @@ const AuthUiProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthUIProvider
       authClient={authClient}
-      navigate={router.push}
-      replace={router.replace}
+      navigate={href => {
+        router.push(href as never);
+      }}
+      replace={href => {
+        router.replace(href as never);
+      }}
       onSessionChange={() => {
         router.refresh();
       }}
       magicLink
-      Link={Link}
+      Link={({ href, className, children }) => (
+        <NextLink href={href as never} className={className}>
+          {children}
+        </NextLink>
+      )}
       social={{
         providers: ['google', 'github'],
       }}
+      organization={false}
+      teams={false}
       redirectTo="/dashboard"
     >
       {children}

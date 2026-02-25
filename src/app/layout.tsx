@@ -4,6 +4,7 @@ import { Figtree } from 'next/font/google';
 import AuthUiProvider from '@/components/providers/better-auth-ui-provider';
 import ThemeProvider from '@/components/providers/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 import './globals.css';
 
@@ -56,7 +57,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthUiProvider>
-            {children}
+            <TooltipProvider>{children}</TooltipProvider>
             <Toaster richColors />
           </AuthUiProvider>
         </ThemeProvider>
