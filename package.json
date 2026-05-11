@@ -60,8 +60,8 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.4.2",
-    "@commitlint/config-conventional": "^20.4.2",
+    "@commitlint/cli": "^21.0.0",
+    "@commitlint/config-conventional": "^21.0.0",
     "@tailwindcss/postcss": "^4.2.1",
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
     "@types/node": "^25.3.0",
@@ -70,18 +70,18 @@
     "babel-plugin-react-compiler": "1.0.0",
     "baseline-browser-mapping": "^2.10.0",
     "drizzle-kit": "^0.31.9",
-    "eslint": "^9.39.3",
-    "eslint-config-next": "16.1.6",
+    "eslint": "^10.3.0",
+    "eslint-config-next": "16.2.6",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-check-file": "^3.3.1",
-    "eslint-plugin-n": "^17.24.0",
+    "eslint-plugin-n": "^18.0.1",
     "eslint-plugin-prettier": "^5.5.5",
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.7",
+    "lint-staged": "^17.0.4",
     "prettier": "^3.8.1",
-    "prettier-plugin-tailwindcss": "^0.7.2",
+    "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwindcss": "^4.2.1",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   }
 }
